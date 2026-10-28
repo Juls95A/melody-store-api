@@ -1,0 +1,57 @@
+// Esquema de base de datos de Melody Store
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Roles disponibles para los usuarios
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id          Int         @id @default(autoincrement())
+  nombre      String
+  email       String      @unique
+  password    String // Hash generado con bcrypt
+  role        Role        @default(user)
+  createdAt   DateTime    @default(now())
+  solicitudes Solicitud[]
+
+  @@map("users")
+}
+
+model Producto {
+  id          Int         @id @default(autoincrement())
+  nombre      String
+  categoria   String
+  precio      Int // Precio en pesos colombianos
+  descripcion String
+  imagen      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  solicitudes Solicitud[]
+
+  @@map("productos")
+}
+
+model Solicitud {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  telefono   String
+  asunto     String
+  mensaje    String
+  estado     String   @default("pendiente")
+  createdAt  DateTime @default(now())
+
+  @@map("solicitudes")
+}
