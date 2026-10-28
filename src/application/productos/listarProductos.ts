@@ -1,9 +1,7 @@
 import { Paginado } from "../../domain/productos/Paginado";
 import { FiltrosProducto, Producto } from "../../domain/productos/Producto";
 import { ProductoRepository } from "../../domain/productos/ProductoRepository";
-
-const LIMITE_POR_DEFECTO = 6;
-const LIMITE_MAXIMO = 50;
+import { paginar } from "../shared/paginar";
 
 // Lista productos paginados aplicando los filtros recibidos
 export async function listarProductos(
@@ -12,18 +10,15 @@ export async function listarProductos(
   page?: number,
   limit?: number
 ): Promise<Paginado<Producto>> {
-  // Normaliza página y límite a valores válidos
-  const pagina = page && page > 0 ? Math.floor(page) : 1;
-  const limite = limit && limit > 0 ? Math.min(Math.floor(limit), LIMITE_MAXIMO) : LIMITE_POR_DEFECTO;
-
-  const { data, total } = await repo.listar(filtros, (pagina - 1) * limite, limite);
+  const paginacion = paginar(page, limit);
+  const { data, total } = await repo.listar(filtros, paginacion.skip, paginacion.limit);
 
   return {
     pagination: {
-      page: pagina,
-      limit: limite,
+      page: paginacion.page,
+      limit: paginacion.limit,
       total,
-      totalPages: Math.ceil(total / limite),
+      totalPages: Math.ceil(total / paginacion.limit),
     },
     data,
   };

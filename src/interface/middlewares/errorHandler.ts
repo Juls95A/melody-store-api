@@ -22,6 +22,15 @@ function esJsonInvalido(error: unknown): boolean {
   return error instanceof SyntaxError && "body" in error;
 }
 
+// Código 4xx que traen algunos errores de Express y body-parser
+// (URL mal codificada, body demasiado grande, charset no soportado...)
+function statusCliente(error: unknown): number | undefined {
+  if (typeof error === "object" && error !== null && "status" in error && typeof error.status === "number") {
+    return error.status >= 400 && error.status < 500 ? error.status : undefined;
+  }
+  return undefined;
+}
+
 // Convierte cualquier error en una respuesta HTTP (nunca devuelve el stack)
 export function errorHandler(error: unknown, _req: Request, res: Response, _next: NextFunction): void {
   // Errores propios: su código HTTP y, si existen, los errores por campo
@@ -39,6 +48,13 @@ export function errorHandler(error: unknown, _req: Request, res: Response, _next
 
   if (esJsonInvalido(error)) {
     res.status(400).json({ message: "El cuerpo de la petición no es un JSON válido" });
+    return;
+  }
+
+  const status = statusCliente(error);
+  if (status) {
+    const message = status === 413 ? "El cuerpo de la petición es demasiado grande" : "Petición inválida";
+    res.status(status).json({ message });
     return;
   }
 

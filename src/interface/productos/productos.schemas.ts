@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// Máximo que acepta una columna Int de PostgreSQL
+export const ENTERO_MAX = 2147483647;
+
 // Categorías permitidas en el catálogo
 const CATEGORIAS = ["guitarras", "bajos", "teclados", "baterias", "accesorios"] as const;
 
@@ -15,7 +18,8 @@ const categoria = z.enum(CATEGORIAS, {
 const precio = z
   .number({ error: "El precio es obligatorio y debe ser un número" })
   .int("El precio debe ser un número entero")
-  .positive("El precio debe ser mayor que 0");
+  .positive("El precio debe ser mayor que 0")
+  .max(ENTERO_MAX, "El precio es demasiado grande");
 
 const descripcion = z
   .string({ error: "La descripción es obligatoria" })
@@ -45,7 +49,8 @@ export const idParamsSchema = z.object({
   id: z.coerce
     .number({ error: "El id debe ser un número" })
     .int("El id debe ser un número entero")
-    .positive("El id debe ser mayor que 0"),
+    .positive("El id debe ser mayor que 0")
+    .max(ENTERO_MAX, "El id es demasiado grande"),
 });
 
 // Query del listado (los valores llegan como texto y se convierten a número)
@@ -67,11 +72,13 @@ export const listarProductosQuerySchema = z.object({
     .number({ error: "precioMin debe ser un número" })
     .int("precioMin debe ser un número entero")
     .nonnegative("precioMin no puede ser negativo")
+    .max(ENTERO_MAX, "precioMin es demasiado grande")
     .optional(),
   precioMax: z.coerce
     .number({ error: "precioMax debe ser un número" })
     .int("precioMax debe ser un número entero")
     .nonnegative("precioMax no puede ser negativo")
+    .max(ENTERO_MAX, "precioMax es demasiado grande")
     .optional(),
 });
 

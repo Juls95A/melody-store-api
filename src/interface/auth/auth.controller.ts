@@ -5,7 +5,7 @@ import { UserRepository } from "../../domain/auth/UserRepository";
 import { registrar } from "../../application/auth/registrar";
 import { login } from "../../application/auth/login";
 import { obtenerUsuarioActual } from "../../application/auth/obtenerUsuarioActual";
-import { UnauthorizedError } from "../../domain/errors/AppError";
+import { usuarioActual } from "../middlewares/autenticar";
 import { LoginBody, RegisterBody } from "./auth.schemas";
 
 // Controlador de autenticación: recibe datos validados y llama a los casos de uso
@@ -31,9 +31,7 @@ export function crearAuthController(repo: UserRepository, hashService: HashServi
 
     async me(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
-        // req.user lo llena el middleware autenticar
-        if (!req.user) throw new UnauthorizedError("Debes iniciar sesión");
-        const user = await obtenerUsuarioActual(repo, req.user.id);
+        const user = await obtenerUsuarioActual(repo, usuarioActual(req).id);
         res.status(200).json({ user });
       } catch (error) {
         next(error);
