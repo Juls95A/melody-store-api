@@ -24,7 +24,7 @@ export type ActualizarProductoDTO = Partial<CrearProductoDTO>;
 
 // Filtros opcionales para listar productos
 export type FiltrosProducto = {
-  categoria?: string;
+  categorias?: string[]; // Una o varias categorías
   busqueda?: string;
   precioMin?: number;
   precioMax?: number;

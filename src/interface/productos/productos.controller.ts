@@ -17,7 +17,7 @@ export function crearProductosController(repo: ProductoRepository) {
     ): Promise<void> {
       try {
         const { page, limit, categoria, q, precioMin, precioMax } = req.query;
-        const resultado = await listarProductos(repo, { categoria, busqueda: q, precioMin, precioMax }, page, limit);
+        const resultado = await listarProductos(repo, { categorias: categoria, busqueda: q, precioMin, precioMax }, page, limit);
         res.status(200).json(resultado);
       } catch (error) {
         next(error);

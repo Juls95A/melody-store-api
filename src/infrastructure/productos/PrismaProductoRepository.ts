@@ -8,7 +8,7 @@ export class PrismaProductoRepository implements ProductoRepository {
   async listar(filtros: FiltrosProducto, skip: number, take: number): Promise<{ data: Producto[]; total: number }> {
     // Construye el filtro de Prisma solo con los valores recibidos
     const where: Prisma.ProductoWhereInput = {
-      categoria: filtros.categoria,
+      categoria: filtros.categorias ? { in: filtros.categorias } : undefined,
       nombre: filtros.busqueda ? { contains: filtros.busqueda, mode: "insensitive" } : undefined,
       precio: { gte: filtros.precioMin, lte: filtros.precioMax },
     };

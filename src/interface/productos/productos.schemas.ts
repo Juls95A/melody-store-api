@@ -15,6 +15,14 @@ const categoria = z.enum(CATEGORIAS, {
   error: `La categoría debe ser una de: ${CATEGORIAS.join(", ")}`,
 });
 
+// Una o varias categorías separadas por coma (ej: "guitarras,bajos")
+const categoriasQuery = z
+  .string()
+  .transform((valor) => valor.split(",").map((c) => c.trim()))
+  .refine((lista) => lista.every((c) => (CATEGORIAS as readonly string[]).includes(c)), {
+    error: `La categoría debe ser una de: ${CATEGORIAS.join(", ")}`,
+  });
+
 const precio = z
   .number({ error: "El precio es obligatorio y debe ser un número" })
   .int("El precio debe ser un número entero")
@@ -66,7 +74,7 @@ export const listarProductosQuerySchema = z.object({
     .positive("limit debe ser mayor que 0")
     .max(50, "limit no puede ser mayor que 50")
     .optional(),
-  categoria: categoria.optional(),
+  categoria: categoriasQuery.optional(),
   q: z.string().trim().max(100, "La búsqueda no puede superar 100 caracteres").optional(),
   precioMin: z.coerce
     .number({ error: "precioMin debe ser un número" })
