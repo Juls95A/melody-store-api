@@ -6,6 +6,7 @@ import { healthRouter } from "./interface/health/health.router";
 import { crearProductosRouter } from "./interface/productos/productos.router";
 import { crearAuthRouter } from "./interface/auth/auth.router";
 import { notFound } from "./interface/middlewares/notFound";
+import { crearAutenticar } from "./interface/middlewares/autenticar";
 import { errorHandler } from "./interface/middlewares/errorHandler";
 import { PrismaProductoRepository } from "./infrastructure/productos/PrismaProductoRepository";
 import { PrismaUserRepository } from "./infrastructure/auth/PrismaUserRepository";
@@ -29,10 +30,13 @@ const userRepository = new PrismaUserRepository();
 const hashService = new BcryptHashService();
 const tokenService = new JwtTokenService(config.jwtSecret, config.jwtExpiresIn);
 
+// Middleware de autenticación compartido por los routers
+const autenticar = crearAutenticar(tokenService);
+
 // Rutas
 app.use("/api/health", healthRouter);
-app.use("/api/auth", crearAuthRouter(userRepository, hashService, tokenService));
-app.use("/api/productos", crearProductosRouter(productoRepository));
+app.use("/api/auth", crearAuthRouter(userRepository, hashService, tokenService, autenticar));
+app.use("/api/productos", crearProductosRouter(productoRepository, autenticar));
 
 // Rutas inexistentes y manejo centralizado de errores (siempre al final)
 app.use(notFound);

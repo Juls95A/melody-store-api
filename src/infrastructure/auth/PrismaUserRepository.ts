@@ -11,6 +11,10 @@ export class PrismaUserRepository implements UserRepository {
     return prisma.user.findUnique({ where: { email } });
   }
 
+  async buscarPorId(id: number): Promise<User | null> {
+    return prisma.user.findUnique({ where: { id }, select: camposPublicos });
+  }
+
   async crear(datos: NuevoUser): Promise<User> {
     return prisma.user.create({ data: datos, select: camposPublicos });
   }
