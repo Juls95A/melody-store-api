@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ESTADOS_SOLICITUD } from "../../domain/solicitudes/Solicitud";
+import { ESTADOS_SOLICITUD, METODOS_PAGO } from "../../domain/solicitudes/Solicitud";
 import { ENTERO_MAX } from "../productos/productos.schemas";
 
 // Body para crear una solicitud (si mandan "userId" se descarta)
@@ -18,10 +18,30 @@ export const crearSolicitudSchema = z.object(
       .string({ error: "El asunto es obligatorio" })
       .trim()
       .min(1, "El asunto es obligatorio"),
+    // Opcional, pero si viene debe tener al menos 10 caracteres
     mensaje: z
-      .string({ error: "El mensaje es obligatorio" })
+      .string({ error: "El mensaje debe ser un texto" })
       .trim()
-      .min(10, "El mensaje debe tener al menos 10 caracteres"),
+      .min(10, "El mensaje debe tener al menos 10 caracteres")
+      .optional(),
+    cantidad: z
+      .number({ error: "La cantidad es obligatoria y debe ser un número" })
+      .int("La cantidad debe ser un número entero")
+      .min(1, "La cantidad debe ser al menos 1")
+      .max(10, "La cantidad no puede ser mayor que 10")
+      .default(1),
+    direccionEnvio: z
+      .string({ error: "La dirección de envío es obligatoria" })
+      .trim()
+      .min(5, "La dirección de envío debe tener al menos 5 caracteres"),
+    ciudad: z
+      .string({ error: "La ciudad es obligatoria" })
+      .trim()
+      .min(3, "La ciudad debe tener al menos 3 caracteres"),
+    // Solo la opción elegida; no se reciben ni guardan datos de tarjeta
+    metodoPago: z.enum(METODOS_PAGO, {
+      error: `El método de pago debe ser uno de: ${METODOS_PAGO.join(", ")}`,
+    }),
   },
   { error: "El cuerpo de la petición debe ser un objeto JSON" }
 );

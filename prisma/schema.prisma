@@ -42,16 +42,20 @@ model Producto {
 }
 
 model Solicitud {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
-  productoId Int
-  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
-  telefono   String
-  asunto     String
-  mensaje    String
-  estado     String   @default("pendiente")
-  createdAt  DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  telefono       String
+  asunto         String
+  mensaje        String?
+  cantidad       Int      @default(1)
+  direccionEnvio String
+  ciudad         String
+  metodoPago     String // contra_entrega | transferencia | tarjeta_al_recibir (no se guardan datos de tarjeta)
+  estado         String   @default("pendiente")
+  createdAt      DateTime @default(now())
 
   @@map("solicitudes")
 }
