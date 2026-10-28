@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AppError, ValidationError } from "../../domain/errors/AppError";
+import { AppError } from "../../domain/errors/AppError";
 
 // Respuestas para los códigos de error conocidos de Prisma.
 // Se reconocen por su "code" para no importar Prisma fuera de infrastructure.
@@ -24,13 +24,9 @@ function esJsonInvalido(error: unknown): boolean {
 
 // Convierte cualquier error en una respuesta HTTP (nunca devuelve el stack)
 export function errorHandler(error: unknown, _req: Request, res: Response, _next: NextFunction): void {
-  if (error instanceof ValidationError) {
-    res.status(error.statusCode).json({ message: error.message, errors: error.errors });
-    return;
-  }
-
+  // Errores propios: su código HTTP y, si existen, los errores por campo
   if (error instanceof AppError) {
-    res.status(error.statusCode).json({ message: error.message });
+    res.status(error.statusCode).json(error.errors ? { message: error.message, errors: error.errors } : { message: error.message });
     return;
   }
 

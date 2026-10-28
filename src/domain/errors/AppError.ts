@@ -1,6 +1,11 @@
 // Error base de la aplicación: cada error propio indica su código HTTP
+// y, opcionalmente, errores por campo { campo: mensaje }
 export class AppError extends Error {
-  constructor(mensaje: string, public readonly statusCode: number) {
+  constructor(
+    mensaje: string,
+    public readonly statusCode: number,
+    public readonly errors?: Record<string, string>
+  ) {
     super(mensaje);
     this.name = new.target.name;
   }
@@ -8,8 +13,8 @@ export class AppError extends Error {
 
 // 400: los datos recibidos no son válidos
 export class ValidationError extends AppError {
-  constructor(mensaje = "Datos inválidos", public readonly errors: Record<string, string> = {}) {
-    super(mensaje, 400);
+  constructor(mensaje = "Datos inválidos", errors?: Record<string, string>) {
+    super(mensaje, 400, errors);
   }
 }
 
@@ -36,7 +41,7 @@ export class NotFoundError extends AppError {
 
 // 409: conflicto con un dato existente (por ejemplo, email repetido)
 export class ConflictError extends AppError {
-  constructor(mensaje = "El recurso ya existe") {
-    super(mensaje, 409);
+  constructor(mensaje = "El recurso ya existe", errors?: Record<string, string>) {
+    super(mensaje, 409, errors);
   }
 }
